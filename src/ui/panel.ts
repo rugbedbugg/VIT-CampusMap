@@ -6,7 +6,7 @@ import { isStarred, toggleStar } from './recents'
 
 const el = document.getElementById('panel') as HTMLElement
 
-export const REPO = 'https://github.com/rugbedbugg/vit-map'
+export const REPO = 'https://github.com/rugbedbugg/VIT-CampusMap'
 
 const esc = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))

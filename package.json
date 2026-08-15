@@ -1,5 +1,5 @@
 {
-  "name": "vit-map",
+  "name": "VIT-CampusMap",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -27,6 +27,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rugbedbugg/vit-map.git"
+    "url": "https://github.com/rugbedbugg/VIT-CampusMap.git"
   }
 }

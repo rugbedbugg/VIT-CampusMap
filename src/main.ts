@@ -356,7 +356,7 @@ async function start() {
 
   /* ── map picking ──────────────────────────────────────────────────────── */
 
-  const REPO = 'https://github.com/rugbedbugg/vit-map'
+  const REPO = 'https://github.com/rugbedbugg/VIT-CampusMap'
   type PickMode = 'report' | 'origin'
   let pickMode: PickMode | null = null
 

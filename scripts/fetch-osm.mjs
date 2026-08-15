@@ -64,7 +64,7 @@ out geom tags;`,
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 // Overpass mirrors reject requests with no User-Agent.
-const UA = 'vit-map/0.1 (campus map; +https://github.com/rugbedbugg/vit-map)'
+const UA = 'VIT-CampusMap/0.1 (campus map; +https://github.com/rugbedbugg/VIT-CampusMap)'
 
 async function overpass(query, name) {
   let lastErr
