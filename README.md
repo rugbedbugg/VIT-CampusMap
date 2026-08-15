@@ -1,4 +1,7 @@
 # VIT-CampusMap
+![GitHub last commit](https://img.shields.io/github/last-commit/rugbedbugg/VIT-CampusMap?style=for-the-badge&labelColor=000000)
+![GitHub repo size](https://img.shields.io/github/repo-size/rugbedbugg/VIT-CampusMap?style=for-the-badge&labelColor=000000)
+![Stars](https://img.shields.io/github/stars/rugbedbugg/VIT-CampusMap?style=for-the-badge&labelColor=000000)
 
 A map of VIT Vellore with the things students look for: hostels, canteens, 
 cycle stands, ATMs, printing, opening hours, and one fast search over all of it.

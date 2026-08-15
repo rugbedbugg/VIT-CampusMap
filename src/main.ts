@@ -224,7 +224,7 @@ async function start() {
     chipBox.innerHTML = cats.map(([c, meta]) =>
       `<button class="chip" data-cat="${c}" aria-pressed="false" style="color:${catColour(c)}"
          title="${meta.label} · ${campus.meta.counts[c]}">
-         <span class="dot"></span>${meta.label}<span class="n">${campus.meta.counts[c]}</span>
+         <span class="dot"></span><span class="chip-label">${meta.label}</span><span class="n">${campus.meta.counts[c]}</span>
        </button>`).join('')
     paintChips()
   }

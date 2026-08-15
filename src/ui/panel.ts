@@ -142,8 +142,6 @@ export function showPoi(p: Poi) {
 /* ── about ───────────────────────────────────────────────────────────────── */
 
 export function showAbout(campus: Campus) {
-  const total = Object.values(campus.meta.counts).reduce((a, b) => a + b, 0)
-
   const body = `
     <div class="p-surveil">
       <img src="/images/campus-aerial.jpg" alt="Aerial view of the VIT Vellore campus" loading="lazy">

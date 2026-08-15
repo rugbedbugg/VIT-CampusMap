@@ -161,12 +161,14 @@ async function check(name, width, height) {
     ok(overlap === '', 'layer chips do not overlap the footer', overlap)
   }
 
-  await page.keyboard.down('Meta'); await page.keyboard.press('KeyK'); await page.keyboard.up('Meta')
+  await page.keyboard.down('Control'); await page.keyboard.down('Shift')
+  await page.keyboard.press('KeyF')
+  await page.keyboard.up('Shift'); await page.keyboard.up('Control')
   const paletteOpen = await page.waitForFunction(
     () => document.getElementById('palette') && !document.getElementById('palette').hidden,
     { timeout: 4000 },
   ).then(() => true).catch(() => false)
-  ok(paletteOpen, 'palette opens on ⌘K')
+  ok(paletteOpen, 'palette opens on Ctrl+Shift+F')
 
   if (paletteOpen) {
     await page.type('#palette-input', 'periyar', { delay: 12 })
@@ -202,7 +204,9 @@ async function check(name, width, height) {
       await page.click('#palette-close')
       const shut = await page.evaluate(() => document.getElementById('palette').hidden)
       ok(shut, 'close button dismisses the palette')
-      await page.keyboard.down('Meta'); await page.keyboard.press('KeyK'); await page.keyboard.up('Meta')
+      await page.keyboard.down('Control'); await page.keyboard.down('Shift')
+      await page.keyboard.press('KeyF')
+      await page.keyboard.up('Shift'); await page.keyboard.up('Control')
       await page.waitForFunction(() => !document.getElementById('palette').hidden, { timeout: 3000 })
       await page.type('#palette-input', 'periyar', { delay: 8 })
       await page.waitForFunction(() => document.querySelectorAll('#palette-results .row').length > 0,

@@ -398,13 +398,14 @@ body:has(#panel:not([hidden])) #recent-box { display: none; }
 .layers-head .layers-close { display: none; }
 #layer-chips {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 3px 10px;
 }
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
   padding: 3px 0;
   font-size: 13px;
   color: var(--fg-3);
@@ -413,16 +414,23 @@ body:has(#panel:not([hidden])) #recent-box { display: none; }
   text-shadow: 0 0 3px var(--halo), 0 0 6px var(--halo), 0 0 11px var(--halo);
 }
 .chip .dot {
+  flex: none;
   width: 7px; height: 7px;
   border-radius: 50%;
   background: currentColor;
   opacity: .3;
   box-shadow: 0 0 0 2px var(--halo), 0 0 4px 2px var(--halo);
 }
+.chip-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .chip[aria-pressed="true"] { color: var(--fg); }
 .chip[aria-pressed="true"] .dot { opacity: 1; }
 .chip:hover { color: var(--fg); }
-.chip .n { display: none; }
+.chip .n { display: none; flex: none; }
 
 /* ── right: detail panel ─────────────────────────────────────────────── */
 
@@ -887,7 +895,7 @@ body:has(#panel:not([hidden])) #recent-box { display: none; }
 
   #layer-chips {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 0;
     overflow-y: auto;
     padding: 6px 10px calc(14px + env(safe-area-inset-bottom));
