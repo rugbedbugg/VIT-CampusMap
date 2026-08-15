@@ -3,11 +3,6 @@
 A map of VIT Vellore with the things students look for: hostels, canteens, 
 cycle stands, ATMs, printing, opening hours, and one fast search over all of it.
 
-## The one rule
-
-**Real data or no data.** Every fact in this repo traces to a public source.
-Where no source exists the feature is simply absent, rather than guessed at.
-
 ## Sources
 
 | What | Where from | Count |
