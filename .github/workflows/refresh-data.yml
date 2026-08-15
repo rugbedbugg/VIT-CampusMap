@@ -1,0 +1,62 @@
+name: refresh data
+
+# Re-pulls OpenStreetMap, then opens a PR if anything changed. A PR rather
+# than a direct push, so a source going weird (empty response, a changed
+# boundary) never silently lands on the live site.
+
+on:
+  schedule:
+    - cron: '17 20 * * 0' # Sundays 20:17 UTC, quiet hours
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Refetch OpenStreetMap
+        run: npm run fetch -- --force
+
+      - name: Rebuild derived data
+        run: npm run build:data
+
+      # A source returning an empty list would otherwise wipe the site's data.
+      - name: Sanity-check the result
+        run: |
+          node -e '
+            const c = require("./public/data/campus.json");
+            const fail = (m) => { console.error("FAIL: " + m); process.exit(1) };
+            if (c.pois.length < 50) fail(`only ${c.pois.length} POIs`);
+            console.log(`ok: ${c.pois.length} pois`);
+          '
+
+      - name: Smoke test the refreshed data
+        run: npm run smoke
+
+      - uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/refresh-data
+          title: 'chore: refresh campus data'
+          commit-message: 'chore: refresh campus data'
+          body: |
+            Automated weekly pull of OpenStreetMap data (boundary via Nominatim,
+            everything else via Overpass).
+
+            Counts passed the sanity floor. Skim the diff for anything odd
+            (a source changing its markup usually shows up as a mass deletion)
+            before merging.
+          # public/data is generated and gitignored, only the inputs are committed.
+          add-paths: data/
+          delete-branch: true

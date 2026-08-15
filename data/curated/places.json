@@ -1,0 +1,26 @@
+{
+  "_readme": "Places OpenStreetMap does not carry yet. Every row here must come from an actual survey — a coordinate someone stood at, or a feature someone saw. Nothing invented. Better still, add it to OpenStreetMap instead and it arrives here on the next `npm run fetch`, along with every other OSM consumer.",
+  "_source": "survey",
+  "_schema": {
+    "id": "unique slug, required",
+    "name": "display name, required",
+    "cat": "one of the category keys in scripts/build-data.mjs, required",
+    "lat / lon": "surveyed coordinates. Use these OR `anchor`, not both.",
+    "anchor": "EXACT name of an existing OSM feature to sit beside, when you know the place but not its coordinates. The build resolves the position and warns if the anchor stops matching.",
+    "hours": "opening_hours syntax, e.g. 'Mo-Fr 09:00-20:00' or '24/7'",
+    "desc": "one line on why a student cares",
+    "wheelchair": "yes | limited | no",
+    "capacity": "optional, for cycle stands"
+  },
+  "items": [
+    {
+      "id": "silver-jubilee-tower",
+      "name": "Silver Jubilee Tower",
+      "cat": "academic",
+      "lat": 12.970952,
+      "lon": 79.163932,
+      "aliases": ["SJT"],
+      "desc": "OSM way/412303841 still has the real building outline, but a 2026-06-17 geometry edit (changeset 186378443) accidentally stripped its building=yes and name tags, so our build no longer draws it. These coordinates are that same way's own area-weighted centroid, not a fresh survey — remove this entry once the tags are restored in OSM and the next fetch picks the real building back up."
+    }
+  ]
+}

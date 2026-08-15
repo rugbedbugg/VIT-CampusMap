@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#000000">
+<title>404 - VIT-Vellore Campus Map</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23000000'/><rect x='1' y='1' width='30' height='30' fill='none' stroke='%2355ffff' stroke-width='1'/><path d='M8 9 L16 22 L24 9' stroke='%2355ffff' stroke-width='2.5' fill='none' stroke-linejoin='round'/><circle cx='16' cy='14' r='2' fill='%23ffff55'/></svg>">
+<style>
+  @font-face {
+    font-family: "Departure Mono";
+    src: url("/fonts/DepartureMono-Regular.woff2") format("woff2");
+    font-display: swap;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%; margin: 0;
+    background: #000000; color: #cfd6d6;
+    font-family: "Departure Mono", ui-monospace, monospace;
+  }
+  body {
+    display: flex; align-items: center; justify-content: center;
+  }
+  .box {
+    position: relative;
+    width: min(420px, calc(100vw - 32px));
+    padding: 28px 26px;
+    background: #0c1010; border: 1px solid #24403f;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, .6);
+  }
+  .corner {
+    position: absolute; height: 14px; aspect-ratio: 1;
+    border-color: #55ffff; opacity: .9;
+    filter: drop-shadow(0 0 3px rgba(85, 255, 255, .5));
+  }
+  .corner.tl { top: 4px; left: 4px; border-left: 2px solid; border-top: 2px solid; }
+  .corner.tr { top: 4px; right: 4px; border-right: 2px solid; border-top: 2px solid; }
+  .corner.bl { bottom: 4px; left: 4px; border-left: 2px solid; border-bottom: 2px solid; }
+  .corner.br { bottom: 4px; right: 4px; border-right: 2px solid; border-bottom: 2px solid; }
+  .code {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    color: #7a8888; margin-bottom: 14px;
+  }
+  .dot {
+    width: 8px; height: 8px; background: #ff5555;
+    animation: blink 1s steps(1, end) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  h1 {
+    margin: 0 0 10px; font-size: 22px; letter-spacing: .04em;
+    color: #55ffff; text-shadow: 0 0 6px rgba(85, 255, 255, .45);
+  }
+  p { margin: 0 0 20px; font-size: 13.5px; line-height: 1.5; color: #9aa6a6; }
+  a.back {
+    display: inline-block; padding: 9px 16px;
+    background: #101818; border: 1px solid #24403f;
+    color: #55ffff; text-decoration: none;
+    font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase;
+  }
+  a.back:hover { border-color: #55ffff; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+    <div class="code"><span class="dot"></span>404 · not on the map</div>
+    <h1>Nothing charted here.</h1>
+    <p>That location doesn't exist on the campus index. It may have been moved
+    or never mapped in the first place.</p>
+    <a class="back" href="/">Return to map</a>
+  </div>
+</body>
+</html>

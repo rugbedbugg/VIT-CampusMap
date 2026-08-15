@@ -1,0 +1,292 @@
+import type { StyleSpecification } from 'maplibre-gl'
+import type { Campus } from '../types'
+
+// Basemap drawn from our own GeoJSON, no tile server. Palette matches the
+// CSS custom properties in styles.css.
+const C = {
+  bg: '#000000',
+  campus: '#0f1414',
+  green: '#0d2410',
+  water: '#062828',
+  building: '#141a1a',
+  buildingEdge: '#24403f',
+  named: '#182222',
+  road: '#4a6b6b',
+  roadCase: '#101c1c',
+  path: '#2a4444',
+  steps: '#3a5252',
+  wall: '#1a2626',
+  boundary: '#285050',
+  label: '#aaaaaa',
+  labelHalo: '#000000',
+  dotStroke: '#000000',
+  focus: '#55ff55',
+  glow: '#ffff55',
+  glowCore: '#ffffaa',
+  routeHalo: '#000000',
+  route: '#55ffff',
+} as const
+
+/** Must match a directory under public/font. */
+export const FONT = 'Departure Mono Regular'
+
+export function buildStyle(
+  geo: Record<string, GeoJSON.FeatureCollection>,
+  campus: Campus,
+  base = '/',
+): StyleSpecification {
+
+  const src = (data: GeoJSON.FeatureCollection) => ({ type: 'geojson' as const, data })
+
+  return {
+    version: 8,
+    glyphs: `${base}font/{fontstack}/{range}.pbf`,
+    sources: {
+      boundary: src(geo.boundary!),
+      green: src(geo.green!),
+      water: src(geo.water!),
+      waterway: src(geo.waterway!),
+      wall: src(geo.wall!),
+      roads: src(geo.roads!),
+      paths: src(geo.paths!),
+      buildings: src(geo.buildings!),
+      pois: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+      route: { type: 'geojson', data: { type: 'FeatureCollection', features: [] } },
+    },
+    layers: [
+      { id: 'bg', type: 'background', paint: { 'background-color': C.bg } },
+
+      { id: 'campus', type: 'fill', source: 'boundary', paint: { 'fill-color': C.campus } },
+
+      { id: 'green', type: 'fill', source: 'green', paint: { 'fill-color': C.green } },
+      { id: 'water', type: 'fill', source: 'water', paint: { 'fill-color': C.water } },
+      {
+        id: 'waterway', type: 'line', source: 'waterway',
+        paint: { 'line-color': C.water, 'line-width': ['interpolate', ['linear'], ['zoom'], 14, 1, 18, 5] },
+      },
+
+      {
+        id: 'campus-edge', type: 'line', source: 'boundary',
+        paint: { 'line-color': C.boundary, 'line-width': 1.2, 'line-dasharray': [3, 2] },
+      },
+      {
+        id: 'wall', type: 'line', source: 'wall',
+        minzoom: 15,
+        paint: { 'line-color': C.wall, 'line-width': 1 },
+      },
+
+      // Roads get a casing so junctions read cleanly at low zoom.
+      {
+        id: 'road-case', type: 'line', source: 'roads',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': C.roadCase,
+          'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 13, 2, 16, 7, 19, 22],
+        },
+      },
+      {
+        id: 'road', type: 'line', source: 'roads',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': C.road,
+          'line-width': ['interpolate', ['exponential', 1.6], ['zoom'], 13, 1, 16, 4.5, 19, 16],
+        },
+      },
+      // Two layers rather than one: `line-dasharray` rejects data expressions,
+      // so steps cannot be dashed by a `case` on the feature.
+      {
+        id: 'path', type: 'line', source: 'paths',
+        minzoom: 14,
+        filter: ['!=', ['get', 'hw'], 'steps'],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': C.path,
+          'line-width': ['interpolate', ['exponential', 1.5], ['zoom'], 14, 0.6, 17, 2, 19, 5],
+        },
+      },
+      {
+        id: 'path-steps', type: 'line', source: 'paths',
+        minzoom: 15,
+        filter: ['==', ['get', 'hw'], 'steps'],
+        layout: { 'line-cap': 'butt', 'line-join': 'round' },
+        paint: {
+          'line-color': C.steps,
+          'line-width': ['interpolate', ['exponential', 1.5], ['zoom'], 15, 1.5, 19, 6],
+          'line-dasharray': [1, 1],
+        },
+      },
+
+      {
+        id: 'building', type: 'fill', source: 'buildings',
+        paint: {
+          'fill-color': ['case', ['!=', ['get', 'name'], ''], C.named, C.building],
+          'fill-outline-color': C.buildingEdge,
+        },
+      },
+      {
+        id: 'building-top', type: 'line', source: 'buildings',
+        minzoom: 16,
+        paint: { 'line-color': C.buildingEdge, 'line-width': 0.7 },
+      },
+      // Category tint for buildings that are themselves a POI.
+      {
+        id: 'building-cat', type: 'fill', source: 'buildings',
+        filter: ['all', ['!=', ['get', 'cat'], ''], ['in', ['get', 'cat'], ['literal', []]]],
+        paint: { 'fill-color': catColour(campus), 'fill-opacity': 0.16 },
+      },
+
+      {
+        id: 'route-halo', type: 'line', source: 'route',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': C.routeHalo, 'line-width': 13, 'line-opacity': 1 },
+      },
+      {
+        id: 'route-line', type: 'line', source: 'route',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': C.route, 'line-width': 6 },
+      },
+
+      // Street lamps: three stacked blurred circles read as a glow, not a pin.
+      {
+        id: 'lamp-glow-far', type: 'circle', source: 'pois',
+        filter: ['==', ['get', 'cat'], 'light'],
+        paint: {
+          'circle-radius': ['interpolate', ['exponential', 2], ['zoom'], 14, 8, 17, 34, 19.5, 90],
+          'circle-color': C.glow,
+          'circle-blur': 1,
+          'circle-opacity': 0.20,
+          'circle-pitch-alignment': 'map',
+        },
+      },
+      {
+        id: 'lamp-glow-near', type: 'circle', source: 'pois',
+        filter: ['==', ['get', 'cat'], 'light'],
+        paint: {
+          'circle-radius': ['interpolate', ['exponential', 2], ['zoom'], 14, 3, 17, 14, 19.5, 38],
+          'circle-color': C.glow,
+          'circle-blur': 0.9,
+          'circle-opacity': 0.32,
+          'circle-pitch-alignment': 'map',
+        },
+      },
+      // Invisible but hit-testable: the glow itself is not a tap target.
+      {
+        id: 'lamp-hit', type: 'circle', source: 'pois',
+        filter: ['==', ['get', 'cat'], 'light'],
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 14, 8, 17, 13, 19.5, 18],
+          'circle-color': C.glow,
+          'circle-opacity': 0.01,
+        },
+      },
+      {
+        id: 'lamp-core', type: 'circle', source: 'pois',
+        filter: ['==', ['get', 'cat'], 'light'],
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 14, 1.2, 17, 2.4, 19.5, 4],
+          'circle-color': C.glowCore,
+          'circle-blur': 0.3,
+          'circle-opacity': 0.95,
+        },
+      },
+      {
+        id: 'poi-dot', type: 'circle', source: 'pois',
+        filter: ['!=', ['get', 'cat'], 'light'],
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 13, 2.5, 16, 4.5, 19, 7],
+          'circle-color': ['get', 'color'],
+          'circle-stroke-color': C.dotStroke,
+          'circle-stroke-width': 1.4,
+          'circle-opacity': ['case', ['boolean', ['feature-state', 'dim'], false], 0.25, 1],
+        },
+      },
+      {
+        id: 'poi-label', type: 'symbol', source: 'pois',
+        // The default view sits at z15.1, so a higher floor here meant the map
+        // opened with no labels at all.
+        minzoom: 14.5,
+        filter: ['==', ['get', 'pin'], true],
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': [FONT],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 14.5, 10, 19, 13.5],
+          'text-offset': [0, 1.05],
+          'text-anchor': 'top',
+          'text-max-width': 8,
+          'text-optional': true,
+          'text-padding': 4,
+          // Drop the least useful labels first when they collide.
+          'symbol-sort-key': ['case', ['==', ['get', 'cat'], 'lecture'], 0,
+                                      ['==', ['get', 'cat'], 'mess'], 1, 2],
+        },
+        paint: {
+          'text-color': C.label,
+          'text-halo-color': C.labelHalo,
+          'text-halo-width': 1.4,
+        },
+      },
+      // Named but not pinned still gets a label once you're zoomed in enough.
+      {
+        id: 'poi-label-minor', type: 'symbol', source: 'pois',
+        minzoom: 16.5,
+        filter: ['all', ['!=', ['get', 'pin'], true], ['==', ['get', 'named'], true]],
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': [FONT],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 16.5, 9.5, 19.5, 12],
+          'text-offset': [0, 1],
+          'text-anchor': 'top',
+          'text-max-width': 8,
+          'text-optional': true,
+          'text-padding': 3,
+          'symbol-sort-key': 3,
+        },
+        paint: {
+          'text-color': C.label,
+          'text-halo-color': C.labelHalo,
+          'text-halo-width': 1.3,
+        },
+      },
+      // Generic unnamed facilities last; street lights excluded (pure noise).
+      {
+        id: 'poi-label-generic', type: 'symbol', source: 'pois',
+        minzoom: 18,
+        filter: ['all', ['!=', ['get', 'named'], true], ['!=', ['get', 'cat'], 'light']],
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': [FONT],
+          'text-size': 10,
+          'text-offset': [0, 1],
+          'text-anchor': 'top',
+          'text-max-width': 8,
+          'text-optional': true,
+          'text-padding': 3,
+          'symbol-sort-key': 4,
+        },
+        paint: {
+          'text-color': C.label,
+          'text-halo-color': C.labelHalo,
+          'text-halo-width': 1.3,
+          'text-opacity': 0.75,
+        },
+      },
+      {
+        id: 'poi-focus', type: 'circle', source: 'pois',
+        filter: ['==', ['get', 'focus'], true],
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 13, 9, 19, 18],
+          'circle-color': 'transparent',
+          'circle-stroke-color': C.focus,
+          'circle-stroke-width': 1.6,
+        },
+      },
+    ],
+  }
+}
+
+/** `match` expression mapping a category key to its colour. */
+function catColour(campus: Campus): maplibregl.ExpressionSpecification {
+  const pairs: (string | string[])[] = []
+  for (const [k, v] of Object.entries(campus.categories)) pairs.push(k, v.color)
+  return ['match', ['get', 'cat'], ...pairs, '#8b949e'] as unknown as maplibregl.ExpressionSpecification
+}
