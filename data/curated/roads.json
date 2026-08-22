@@ -1,0 +1,11 @@
+{
+  "_readme": "Road/path geometry OpenStreetMap does not carry yet. Visual only, these do not feed the routing graph. Better still, add it to OpenStreetMap directly and it arrives here on the next `npm run fetch`.",
+  "_source": "survey",
+  "_schema": {
+    "id": "unique slug, required",
+    "name": "street name, optional",
+    "hw": "OSM-style highway value: footway | path | cycleway | track | steps | service | residential | tertiary | secondary | primary | unclassified | living_street. Only affects road vs. path styling.",
+    "coords": "array of [lat, lon] pairs tracing the line, in order, at least 2 points"
+  },
+  "items": []
+}

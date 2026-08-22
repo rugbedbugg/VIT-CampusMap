@@ -8,6 +8,7 @@
   "scripts": {
     "fetch": "node scripts/fetch-osm.mjs",
     "build:data": "node scripts/build-data.mjs",
+    "import:places": "node scripts/import-places.mjs",
     "dev": "npm run build:data && vite",
     "build": "npm run build:data && vite build",
     "preview": "vite preview",

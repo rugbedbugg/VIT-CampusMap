@@ -14,13 +14,129 @@
   },
   "items": [
     {
-      "id": "silver-jubilee-tower",
-      "name": "Silver Jubilee Tower",
+      "id": "prp-annexe",
+      "name": "PRP-Annexe",
       "cat": "academic",
-      "lat": 12.970952,
-      "lon": 79.163932,
-      "aliases": ["SJT"],
-      "desc": "OSM way/412303841 still has the real building outline, but a 2026-06-17 geometry edit (changeset 186378443) accidentally stripped its building=yes and name tags, so our build no longer draws it. These coordinates are that same way's own area-weighted centroid, not a fresh survey — remove this entry once the tags are restored in OSM and the next fetch picks the real building back up."
+      "lat": 12.971292,
+      "lon": 79.167164
+    },
+    {
+      "id": "department-of-student-welfare",
+      "name": "Department of Student Welfare",
+      "cat": "academic",
+      "lat": 12.97121,
+      "lon": 79.167164,
+      "aliases": [
+        "DSW"
+      ]
+    },
+    {
+      "id": "school-of-computer-science-engineering-and-information-systems",
+      "name": "School of Computer Science Engineering and Information Systems",
+      "cat": "academic",
+      "anchor": "Technology Tower",
+      "aliases": [
+        "SCORE"
+      ]
+    },
+    {
+      "id": "school-of-bio-sciences-technology",
+      "name": "School of Bio Sciences & Technology",
+      "cat": "academic",
+      "anchor": "Sir M Visvesvaraya Block",
+      "aliases": [
+        "SBST"
+      ]
+    },
+    {
+      "id": "vit-school-of-agricultural-innovations-and-advanced-learning",
+      "name": "VIT School of Agricultural Innovations And Advanced Learning",
+      "cat": "academic",
+      "anchor": "Perl Research Park",
+      "aliases": [
+        "VAIAL"
+      ]
+    },
+    {
+      "id": "school-of-advanced-sciences",
+      "name": "School of Advanced Sciences",
+      "cat": "academic",
+      "anchor": "Technology Tower",
+      "aliases": [
+        "SAS"
+      ]
+    },
+    {
+      "id": "school-of-computer-science-and-engineering",
+      "name": "School of Computer Science and Engineering",
+      "cat": "academic",
+      "anchor": "Silver Jubilee Tower",
+      "aliases": [
+        "SCOPE"
+      ]
+    },
+    {
+      "id": "school-of-electrical-engineering",
+      "name": "School of Electrical Engineering",
+      "cat": "academic",
+      "anchor": "Technology Tower",
+      "aliases": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "school-of-electronics-engineering",
+      "name": "School of Electronics Engineering",
+      "cat": "academic",
+      "anchor": "Technology Tower",
+      "aliases": [
+        "SENSE"
+      ]
+    },
+    {
+      "id": "school-of-social-sciences-and-languages",
+      "name": "School of Social Sciences and Languages",
+      "cat": "academic",
+      "anchor": "Technology Tower",
+      "aliases": [
+        "SSL"
+      ]
+    },
+    {
+      "id": "school-of-civil-engineering",
+      "name": "School of Civil Engineering",
+      "cat": "academic",
+      "anchor": "G.D Naidu Block",
+      "aliases": [
+        "SCE"
+      ]
+    },
+    {
+      "id": "school-of-chemical-engineering",
+      "name": "School of Chemical Engineering",
+      "cat": "academic",
+      "anchor": "Sir M Visvesvaraya Block",
+      "aliases": [
+        "SCHEME"
+      ]
+    },
+    {
+      "id": "school-of-mechanical-engineering",
+      "name": "School of Mechanical Engineering",
+      "cat": "academic",
+      "anchor": "G.D Naidu Block",
+      "aliases": [
+        "SMEC"
+      ]
+    },
+    {
+      "id": "school-of-hotel-tourism-management",
+      "name": "School of Hotel & Tourism Management",
+      "cat": "academic",
+      "anchor": "Sir M Visvesvaraya Block",
+      "aliases": [
+        "HOT"
+      ]
     }
   ]
 }

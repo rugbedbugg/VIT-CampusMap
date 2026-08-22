@@ -4,7 +4,7 @@
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const RAW = join(ROOT, 'data/raw')
@@ -33,7 +33,40 @@ export const CATEGORIES = {
   sports:   { label: 'Sports',            color: '#55ff55', pin: false },
   transport:{ label: 'Parking',           color: '#5555ff', pin: false },
   green:    { label: 'Parks',             color: '#55ff55', pin: false },
+  'mens-hostel':   { label: "Boys' hostels",   color: '#ff55ff', pin: true },
+  'womens-hostel': { label: "Girls' hostels",  color: '#aa00aa', pin: true },
 }
+
+// VIT segregates its halls of residence. The ladies' side either says so
+// outright ("Hall of Residence for Girls 5", "LH-A") or is named after a
+// woman ("Jhansi Rani Block", "Suu Kyi Block"), names that would otherwise
+// fall through to 'academic' via their Block suffix.
+const WOMENS_HOSTEL = /\b(ladies|women|girls?)\b|\bLH\b|jhansi\s*rani|suu\s*kyi|mother\s*teresa|ida\s*scudder|kalpana\s*chawla|helen\s*keller/i
+const MENS_HOSTEL = /\b(boys?|men|male)\b/i
+
+function hostelCat(name) {
+  if (WOMENS_HOSTEL.test(name)) return 'womens-hostel'
+  if (MENS_HOSTEL.test(name)) return 'mens-hostel'
+  // Every single-lettered block on campus ("B Block", "J Block"), and the
+  // annexes hanging off them, is on the men's side; anything else we cannot
+  // vouch for keeps the generic bucket. Two exceptions are handled by
+  // HOSTEL_ID_OVERRIDES below, since names alone cannot tell them apart.
+  if (/^[a-z]\s*(block|hostel|annexe?)$/i.test(name.trim())) return 'mens-hostel'
+  return 'hostel'
+}
+
+// There are TWO M Blocks and TWO N Blocks on campus: a pair beside Kalpana
+// Chawla Ground that belongs to the ladies' side, and the regular northern
+// pair that is men's. Only the OSM ids tell them apart.
+const HOSTEL_ID_OVERRIDES = {
+  r20992887: 'womens-hostel', // M Block by Kalpana Chawla Ground
+  w370766286: 'womens-hostel', // N Block by Kalpana Chawla Ground
+  r21109571: 'mens-hostel', // M Block, north side
+  r21109570: 'mens-hostel', // N Block, north side
+  w1540238549: 'mens-hostel', // M Annexe, north side
+}
+
+const catFor = (el, t) => HOSTEL_ID_OVERRIDES[`${el.type[0]}${el.id}`] ?? classify(t)
 
 function classify(t) {
   const name = t.name || ''
@@ -43,8 +76,18 @@ function classify(t) {
   // Every hall of residence is mapped as a named plot rather than a building,
   // so without this the whole hostel side of campus is invisible.
   if (lu === 'residential' && (t.residential === 'hostel' || /^Hall of Residence/i.test(name))) {
-    return 'hostel'
+    return hostelCat(name)
   }
+
+  // Ladies' hostels are named blocks; catch them before the Block suffix
+  // sends them to 'academic'.
+  if (WOMENS_HOSTEL.test(name) && /\b(block|hostel|bhawan|hall)\b/i.test(name)) {
+    return 'womens-hostel'
+  }
+
+  // Bare lettered blocks ("M Block", "B Annexe") are hostels even though
+  // Block/Annexe would trip the academic keyword match below.
+  if (/^[a-z]\s*(block|hostel|annexe?)$/i.test(name.trim())) return hostelCat(name)
 
   // "Lecture Hall Complex Office Staff" is an indoor office, not a lecture hall
   // or anything else this map indexes — drop it rather than mis-bucket it.
@@ -81,18 +124,18 @@ function classify(t) {
   if (s || a === 'marketplace') return 'shop'
 
   if (/^Hall\s*\d|^Hall\d/i.test(name) || tr === 'hostel' || b === 'dormitory' ||
-      a === 'dormitory' || /Hostel|Bhawan/i.test(name)) return 'hostel'
+      a === 'dormitory' || /Hostel|Bhawan/i.test(name)) return hostelCat(name)
 
   if (o === 'university' || o === 'research' || a === 'university' || a === 'research_institute' ||
       a === 'college' || a === 'school' || o === 'educational_institution' ||
-      /\b(Department|Dept|Laboratory|Lab|Centre|Center|Institute|Academy|Facility|Building|Block|Complex|Wing)\b/i.test(name)) {
+      /\b(Department|Dept|Laboratory|Lab|Centre|Center|Institute|Academy|Facility|Building|Block|Complex|Wing|Tower|Annexe|Research)\b/i.test(name)) {
     return 'academic'
   }
 
   if (lu === 'retail' || lu === 'commercial') return 'shop'
   if (lu === 'recreation_ground') return 'sports'
   if (lu === 'orchard' || lu === 'plant_nursery' || lu === 'forest' || lu === 'meadow') return 'green'
-  if (lu === 'residential') return 'hostel'
+  if (lu === 'residential') return hostelCat(name)
   return null
 }
 
@@ -191,7 +234,7 @@ async function main() {
     else continue
     if (!inCampus(lon, lat)) continue
 
-    const cat = classify(t)
+    const cat = catFor(el, t)
     if (!cat) continue
 
     const id = `${el.type[0]}${el.id}`
@@ -369,7 +412,7 @@ async function main() {
   for (const el of buildings.elements) {
     if (!el.geometry || el.geometry.length < 3 || !touchesCampus(el)) continue
     const t = el.tags || {}
-    const cat = t.name ? classify(t) : null
+    const cat = t.name ? catFor(el, t) : null
     buildingF.push(polyOf(el, {
       name: t.name || '',
       cat: cat || '',
@@ -386,6 +429,25 @@ async function main() {
     const props = { name: t.name || '', hw, lit: t.lit || '', surface: t.surface || '' }
     if (PATH_KINDS.has(hw)) pathF.push(lineOf(el, props))
     else roadF.push(lineOf(el, props))
+  }
+
+  // Hand-supplied road/path geometry OSM doesn't have yet. Visual only, does
+  // not feed the routing graph below.
+  for (const r of curated.roads?.items ?? []) {
+    if (!Array.isArray(r.coords) || r.coords.length < 2) {
+      warn(`curated road "${r.id}" needs at least 2 coords`); continue
+    }
+    const coords = r.coords.map(([lat, lon]) => [+(+lon).toFixed(6), +(+lat).toFixed(6)])
+    if (!coords.some(([lon, lat]) => inCampus(lon, lat))) {
+      warn(`curated road "${r.id}" has no coordinates inside the campus boundary`)
+    }
+    const feature = {
+      type: 'Feature',
+      properties: { name: r.name || '', hw: r.hw || '', lit: '', surface: '' },
+      geometry: { type: 'LineString', coordinates: coords },
+    }
+    if (PATH_KINDS.has(r.hw)) pathF.push(feature)
+    else roadF.push(feature)
   }
 
   const greenF = [], waterF = [], waterLineF = [], wallF = []
@@ -555,6 +617,11 @@ async function main() {
   const counts = {}
   for (const p of poiList) counts[p.cat] = (counts[p.cat] || 0) + 1
 
+  // `roads` is geo data, not POI metadata, so it belongs in geo.json above,
+  // not spread onto campus.json alongside places.json's raw contents.
+  const { roads, ...curatedForCampus } = curated
+  void roads
+
   const campus = {
     meta: {
       name: 'VIT Vellore',
@@ -565,7 +632,7 @@ async function main() {
     },
     categories: CATEGORIES,
     pois: poiList,
-    ...curated,
+    ...curatedForCampus,
   }
 
   await mkdir(OUT, { recursive: true })
@@ -588,4 +655,8 @@ async function main() {
   }
 }
 
-main().catch((e) => { console.error(e); process.exit(1) })
+export { classify, hostelCat }
+
+// Only auto-build when run directly; importers reuse the classifier above.
+const invoked = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href
+if (invoked) main().catch((e) => { console.error(e); process.exit(1) })
