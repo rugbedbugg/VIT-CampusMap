@@ -398,8 +398,10 @@ body:has(#panel:not([hidden])) #recent-box { display: none; }
 .layers-head .layers-close { display: none; }
 #layer-chips {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 3px 10px;
+  grid-template-columns: auto auto;
+  justify-content: start;
+  justify-items: start;
+  gap: 3px 18px;
 }
 .chip {
   display: inline-flex;
