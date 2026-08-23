@@ -331,10 +331,11 @@ kbd {
 .s-line + .s-line { margin-top: 3px; }
 .s-line.accent { color: var(--accent); }
 
-/* Cursor fix readout, sits above the zoom control, desktop only. */
+/* Cursor fix readout, sits left of the zoom control, desktop only. */
 #hud-coords {
-  right: var(--pad);
-  bottom: calc(var(--pad) + 76px);
+  /* 30px control + its 10px margin + a small gap. */
+  right: calc(var(--pad) + 42px);
+  bottom: var(--pad);
   pointer-events: none;
 }
 #hud-coords .hc-val { color: var(--accent); text-shadow: 0 0 4px var(--halo); }
@@ -347,7 +348,9 @@ kbd {
 
 #recent-box {
   right: var(--pad);
-  top: calc(var(--pad) + 54px);
+  /* Hug the top: the bar's right cell is empty on desktop, so LOG slots
+     into the same row as the brand/search furniture. */
+  top: var(--pad);
   min-width: 168px;
   max-width: 220px;
 }
