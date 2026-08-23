@@ -270,7 +270,9 @@ kbd {
   gap: 8px;
   padding: 7px 11px;
   background: var(--bg-1);
-  border: 1px solid var(--line);
+  /* Match the legend's frame so both corners read as the same furniture. */
+  border: 1px solid var(--line-2);
+  box-shadow: var(--lift);
   font-size: 12.5px;
   font-weight: 500;
   letter-spacing: .1em;
