@@ -377,7 +377,9 @@ body:has(#panel:not([hidden])) #recent-box { display: none; }
 
 #layers {
   position: relative;
-  width: min(400px, calc(100vw - 24px));
+  /* Hug the packed-left chips rather than holding a fixed 400px frame. */
+  width: fit-content;
+  max-width: min(400px, calc(100vw - 24px));
   padding: 9px 14px 11px;
   background: var(--bg-1);
   border: 1px solid var(--line-2);
