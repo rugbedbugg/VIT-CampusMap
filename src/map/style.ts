@@ -200,6 +200,28 @@ export function buildStyle(
           'circle-opacity': ['case', ['boolean', ['feature-state', 'dim'], false], 0.25, 1],
         },
       },
+      // Street names follow their road's curvature; only a handful of campus
+      // roads are named, so keep them quiet and let POI labels win collisions.
+      {
+        id: 'road-label', type: 'symbol', source: 'roads',
+        minzoom: 13.5,
+        filter: ['!=', ['get', 'name'], ''],
+        layout: {
+          'symbol-placement': 'line',
+          'text-field': ['get', 'name'],
+          'text-font': [FONT],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 13.5, 11, 16, 12.5, 19, 14.5],
+          'text-letter-spacing': 0.08,
+          'text-padding': 2,
+          'text-optional': true,
+          'symbol-sort-key': 2,
+        },
+        paint: {
+          'text-color': '#d8dee4',
+          'text-halo-color': C.labelHalo,
+          'text-halo-width': 1.6,
+        },
+      },
       {
         id: 'poi-label', type: 'symbol', source: 'pois',
         // The default view sits at z15.1, so a higher floor here meant the map
