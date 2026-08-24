@@ -17,10 +17,15 @@ export const CAMPUS_OSM_ID = 'R15931944'
 // Padded ~300m past the wall for gates and adjoining paths.
 export const BBOX = '12.9634,79.1484,12.9805,79.1720'
 
+// Ordered by observed reliability (2026-08 health check). The canonical .de
+// instance is slow under load but always maintained; mail.ru is a fast
+// standby. Mirrors dropped after real-data verification: osm.ch serves the
+// region as empty, kumi.systems had extended 5xx outages, private.coffee
+// repeated 500s, osm.jp has broken TLS.
 const ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
-  'https://overpass.private.coffee/api/interpreter',
 ]
 
 const QUERIES = {
@@ -81,6 +86,10 @@ async function overpass(query, name) {
       if (!text.startsWith('{')) throw new Error(`non-JSON from ${endpoint}: ${text.slice(0, 160)}`)
       const json = JSON.parse(text)
       if (!Array.isArray(json.elements)) throw new Error('missing elements[]')
+      // Some partial mirrors (e.g. osm.ch for non-European bboxes) happily
+      // return an empty result set. A campus never has zero roads, so treat
+      // empty as a mirror failure and fall through to the next endpoint.
+      if (json.elements.length === 0) throw new Error(`empty elements[] from ${endpoint}`)
       return json
     } catch (err) {
       lastErr = err

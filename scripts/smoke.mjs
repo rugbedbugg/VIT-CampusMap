@@ -65,7 +65,9 @@ const router = new Router(graph)
 const find = (n) => campus.pois.find((p) => p.name === n)
 
 const pairs = [
-  ['A Hostel', 'Anna Auditorium'],
+  // OSM renames campus features without notice (A Hostel became "B Block" etc.
+  // in Aug 2026), so route between landmarks likely to keep their names.
+  ["Men's Hostel Indoor Stadium", 'Anna Auditorium'],
   ['EV Periyar Library', 'CDMM Building'],
   ['DC Bakery', 'Main Building'],
 ]

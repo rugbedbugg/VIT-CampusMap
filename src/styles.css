@@ -865,6 +865,7 @@ body:has(#panel:not([hidden])) #recent-box { display: none; }
     left: 0; right: 0;
     bottom: 0;
     z-index: 10;
+    width: auto; /* undo the dock's fit-content — sheets stretch edge-to-edge */
     max-width: none;
     max-height: 62svh;
     display: flex;
@@ -913,6 +914,9 @@ body:has(#panel:not([hidden])) #recent-box { display: none; }
 
   /* In the sheet a chip is a list row, not floating text. */
   .chip {
+    /* justify-items:start lets chips hug left — clamp to the track so long
+       labels ellipsize instead of poking out of the sheet. */
+    max-width: 100%;
     padding: 11px 8px;
     font-size: 15px;
     border-radius: var(--r);
