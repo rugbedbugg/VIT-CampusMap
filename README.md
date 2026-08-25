@@ -179,6 +179,10 @@ npm run test
 | Smoke | `node scripts/smoke.mjs` | Rebuilds data, validates JSON structure, checks required fields |
 | Verify | `npm run verify` | Headless Chrome E2E (see Commands) |
 
+## License
+
+Code [MIT](LICENSE). Map data © OpenStreetMap contributors, [ODbL](https://www.openstreetmap.org/copyright). Font is Departure Mono ([OFL 1.1](https://openfontlicense.org)).
+
 ## Links
 
 - **Repo:** https://github.com/rugbedbugg/VIT-CampusMap
